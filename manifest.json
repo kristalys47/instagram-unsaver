@@ -5,7 +5,7 @@
    "author"           : "thisismo",
    "description"      : "Unsaving all your saved Instagram Posts",
    "permissions"              : ["webRequest", "webRequestBlocking", "tabs", "*://*.instagram.com/*", "https://www.instagram.com/"],
-   "web_accessible_resources" : ["assets/*"],
+   "web_accessible_resources" : ["js/*"],
    "content_scripts" : [{
       "matches" : ["*://*.instagram.com/*"],
       "run_at"  : "document_idle",
