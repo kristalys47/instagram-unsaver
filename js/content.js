@@ -9,6 +9,7 @@ var articlesBefore = null;
 var unsavedElement = null;
 var unsaving = false;
 var spinnerBefore = null;
+var selecting = false;
 
 document.addEventListener("click", function(){
   setTimeout(function(){
@@ -34,12 +35,14 @@ function hideButtons(){
 
 function addButtons(){
   var sheet = document.createElement('style');
-  sheet.innerHTML = ".qn-0x {display: none;}";
+  sheet.innerHTML = '.qn-0x {display: none;} .selection {background-color: rgba(0,0,0,0.5); background-image: url("https://i.imgur.com/40BpFf8.png"); background-repeat: no-repeat; background-position: center center; background-size: cover;}';
   document.body.appendChild(sheet);
   var div = document.createElement("div");
   div.className = "fx7hk";
   //div.innerHTML = '<a class="_9VEo1 "><span class="smsjF"><span class="PJXu4">UNSAVE ALL</span></span></a><a class="_9VEo1"><span class="smsjF"><span class="PJXu4">UNSAVE SELECTED</span></span></a><a class="_9VEo1"><span class="smsjF"><span class="PJXu4">UNSAVE UNSELECTED</span></span></a><a class="_9VEo1 "><span class="qzihg"><span class="_08DtY">SELECT</span></span></a>';
   div.innerHTML = '<a class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="unsaveAll" style="color: #000;">UNSAVE ALL</span></span></a>';
+  div.innerHTML += '<a class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="unsaveSelected" style="color: #000;">UNSAVE SELECTED</span></span></a>';
+  div.innerHTML += '<a class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="select" style="color: #000;">SELECT</span></span></a>';
   div.id = "toolbar";
   var bar = document.getElementsByClassName(" _2z6nI")[0];
   statusBefore = document.getElementsByClassName("_6auzh")[0];
@@ -59,6 +62,20 @@ function addButtons(){
   spinnerBefore = document.getElementsByClassName("_4emnV")[0].childNodes[0];
 
   document.getElementsByClassName("_9eogI E3X2T")[0].addEventListener("click", function(event){
+    if(selecting){
+      console.log(event.srcElement.className);
+      if(event.srcElement.className.includes("_9AhH0")){
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        if(event.srcElement.className.includes("selection")){
+          event.srcElement.classList.remove("selection");
+        }else{
+          event.srcElement.classList.add("selection");
+        }
+        console.log(event.srcElement);
+      }
+      return false;
+    }
     if(unsaving || document.getElementById("unsaveAll").innerHTML == "DONE") {
       event.stopImmediatePropagation();
       event.preventDefault();
@@ -77,6 +94,8 @@ function addButtons(){
       return;
     }
     if(!statusBefore) return;
+    document.getElementById("unsaveSelected").parentNode.parentNode.parentNode.removeChild(document.getElementById("unsaveSelected").parentNode.parentNode);
+    document.getElementById("select").parentNode.parentNode.parentNode.removeChild(document.getElementById("select").parentNode.parentNode);
     articles = document.getElementsByClassName("FyNDV")[0];
     document.getElementsByClassName("_4emnV")[0].childNodes[0].replaceWith(spinnerBefore);
     if(articles.childNodes[0].className == ""){
@@ -91,15 +110,55 @@ function addButtons(){
     unsavedElement.style.display = "block";
     unsaving = true;
     e.srcElement.innerHTML = "CANCEL";
-    loadAllSavedPosts();
+    loadAllSavedPosts(null);
+  });
+
+  document.getElementById("select").addEventListener("click", function(e){
+    e.srcElement.innerHTML = selecting ? "SELECT" : "CANCEL";
+    selecting = !selecting;
+  });
+
+  document.getElementById("unsaveSelected").addEventListener("click", function(e){
+    if(!statusBefore) return;
+    if(e.srcElement.innerHTML == "DONE"){
+      location.reload();
+      return;
+    }
+    var selected = document.getElementsByClassName("selection");
+    document.getElementById("unsaveAll").parentNode.parentNode.parentNode.removeChild(document.getElementById("unsaveAll").parentNode.parentNode);
+    document.getElementById("select").parentNode.parentNode.parentNode.removeChild(document.getElementById("select").parentNode.parentNode);
+    if(selected.length == 0){
+      alert("Please make a selection first");
+      return;
+    }
+    var selection = [];
+    for(var i = 0; i < selected.length; i++){
+      selection.push(selected[i].parentNode.parentNode.href);
+    }
+    articles = document.getElementsByClassName("FyNDV")[0];
+    document.getElementsByClassName("_4emnV")[0].childNodes[0].replaceWith(spinnerBefore);
+    if(articles.childNodes[0].className == ""){
+      articles.removeChild(articles.childNodes[0]);
+      document.getElementsByClassName("_4emnV")[0].style.marginTop = "0px";
+      articles.appendChild(unsavedElement);
+    }
+    statusAfter = document.getElementsByClassName("_6auzh")[0];
+    statusAfter.innerHTML = "This process can take up to 5 minutes. Please do not leave the page as the unsaving process will be canceled!";
+    statusAfter.style.textAlign = "center";
+    statusAfter.style.marginTop = "0px";
+    unsavedElement.style.display = "block";
+    unsaving = true;
+    e.srcElement.innerHTML = "CANCEL";
+    loadAllSavedPosts(selection);
   });
 }
 
 var unsavedCount = 0;
 var requestCount = 0;
 
-function loadAllSavedPosts(){
+function loadAllSavedPosts(selection){
   //var user = document.getElementsByClassName('gmFkV')[0].innerHTML;
+  console.log(selection);
   if(!unsaving) return;
   var user = document.getElementsByClassName('gmFkV')[0] ? document.getElementsByClassName('gmFkV')[0].innerHTML : window.location.href.split('/')[window.location.href.split('/').length - 3];
   console.log("Unsaving posts for " + user);
@@ -107,7 +166,7 @@ function loadAllSavedPosts(){
     function(data) {
       var user_id = data.graphql.user.id;
       console.log("User ID: " + user_id);
-      unsaveAllPosts(user_id, null);
+      unsaveAllPosts(user_id, null, selection, 0);
     },
     function(xhr) {
       showError(xhr);
@@ -115,7 +174,7 @@ function loadAllSavedPosts(){
   );
 }
 
-function unsaveAllPosts(user_id, end_cursor){
+function unsaveAllPosts(user_id, end_cursor, selection, sindex){
   if(!unsaving) return;
   requestCount++;
   loadJSON('https://www.instagram.com/graphql/query/?query_hash=8c86fed24fa03a8a2eea2a70a80c7b6b&id=' + user_id + '&first=12' + (end_cursor != null ? "&after=" + end_cursor : ""),
@@ -125,18 +184,34 @@ function unsaveAllPosts(user_id, end_cursor){
       var has_next_page = data.page_info.has_next_page;
       for(var i = 0; i < data.edges.length; i++){
         var savedPost = data.edges[i].node;
-        unsavePost(savedPost.id, function(data){
-          console.log(data);
-          unsavedCount++;
-          unsavedElement.innerHTML = "Successfully unsaved " + unsavedCount + " Posts!";
-        }, function(xhr){ console.error(xhr); });
+        if(selection != null){
+          if(sindex < selection.length){
+            if(selection[sindex].includes(savedPost.shortcode)){
+              unsavePost(savedPost.id, function(data){
+                console.log(data);
+                unsavedCount++;
+                unsavedElement.innerHTML = "Successfully unsaved " + unsavedCount + " Posts!";
+              }, function(xhr){ console.error(xhr); });
+              sindex++;
+            }
+          }else{
+            showSuccess(selection);
+            return;
+          }
+        }else{
+          unsavePost(savedPost.id, function(data){
+            console.log(data);
+            unsavedCount++;
+            unsavedElement.innerHTML = "Successfully unsaved " + unsavedCount + " Posts!";
+          }, function(xhr){ console.error(xhr); });
+        }
       }
       if(has_next_page) {
         setTimeout(function(){
-          unsaveAllPosts(user_id, end_cursor);
+          unsaveAllPosts(user_id, end_cursor, selection, sindex);
         }, 300 / 200 * 1000);
       }else{
-        showSuccess();
+        showSuccess(null);
         //alert("Successfully unsaved " +  unsavedCount + " Posts!");
       }
     },
@@ -146,8 +221,12 @@ function unsaveAllPosts(user_id, end_cursor){
   );
 }
 
-function showSuccess(){
-  document.getElementById("unsaveAll").innerHTML = "DONE";
+function showSuccess(selection){
+  if(selection != null){
+    document.getElementById("unsaveSelected").innerHTML = "DONE";
+  }else{
+    document.getElementById("unsaveAll").innerHTML = "DONE";
+  }
   var spinner = document.getElementsByClassName("_4emnV")[0].childNodes[0];
   spinner.innerHTML = "";
   spinner.style.background = 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAZlBMVEU6rXP///8ylGI0m2c5qnH7/fx5x582oWs6mGg1nmkzl2U4p2/a7OP2+vhQpHp+vJzi8OmGzant+PJcqYNCm3B4uZiDv6ExkmOx18RDn3JZqYBPoXfQ59uQxau32sl1xp2Lz62r07/RONiUAAABI0lEQVQ4jYWT6ZKEIAyEQ+sooigyHqO7c+z7v+QCXojWmF8UX1fRCR1ia8lHNXLR87F9yO2WloOqONbq2yIQyGcPRGkeE8V5GhlNJ32BKoHMwKXiDCiLTVAMEDntKhfgv4tADYjoUBF4MQlkecat4kc6wRPijBMJdFagBPJzQQ4URlAhO+dEGVpGkiMOQaJl7boFNL2ODms7udnnH3VITzjT7piipXto0fHbe7ZZ0jBb+EidbDyZ1eDEMR3ldL3nBKwC7UDArWB5InEo4PaJ1WQ9J8Tn1uTWZn3grk1vUHXI3aD8USdav33uRn35WUzh4rsvA8Nu40XkmGq+h9bEvvke++vFMT6eYr96/X713PKKbXlFqw7bbWL4qu4cohkrf/3/AevRDWJ30xUcAAAAAElFTkSuQmCC")';
