@@ -76,7 +76,7 @@ function addButtons(){
       }
       return false;
     }
-    if(unsaving || document.getElementById("unsaveAll").innerHTML == "DONE") {
+    if(unsaving || document.getElementById("unsaveAll").innerHTML == "DONE" || document.getElementById("unsaveSelected").innerHTML == "DONE")) {
       event.stopImmediatePropagation();
       event.preventDefault();
       return false;
@@ -128,30 +128,31 @@ function addButtons(){
     var selected = document.getElementsByClassName("selection");
     if(selected.length == 0){
       alert("Please make a selection first");
-      return;
-    }
-    document.getElementById("unsaveAll").parentNode.parentNode.parentNode.removeChild(document.getElementById("unsaveAll").parentNode.parentNode);
-    document.getElementById("select").parentNode.parentNode.parentNode.removeChild(document.getElementById("select").parentNode.parentNode);
+      return false;
+    }else{
+      document.getElementById("unsaveAll").parentNode.parentNode.parentNode.removeChild(document.getElementById("unsaveAll").parentNode.parentNode);
+      document.getElementById("select").parentNode.parentNode.parentNode.removeChild(document.getElementById("select").parentNode.parentNode);
 
-    var selection = [];
-    for(var i = 0; i < selected.length; i++){
-      selection.push(selected[i].parentNode.parentNode.href);
+      var selection = [];
+      for(var i = 0; i < selected.length; i++){
+        selection.push(selected[i].parentNode.parentNode.href);
+      }
+      articles = document.getElementsByClassName("FyNDV")[0];
+      document.getElementsByClassName("_4emnV")[0].childNodes[0].replaceWith(spinnerBefore);
+      if(articles.childNodes[0].className == ""){
+        articles.removeChild(articles.childNodes[0]);
+        document.getElementsByClassName("_4emnV")[0].style.marginTop = "0px";
+        articles.appendChild(unsavedElement);
+      }
+      statusAfter = document.getElementsByClassName("_6auzh")[0];
+      statusAfter.innerHTML = "This process can take up to 5 minutes. Please do not leave the page as the unsaving process will be canceled!";
+      statusAfter.style.textAlign = "center";
+      statusAfter.style.marginTop = "0px";
+      unsavedElement.style.display = "block";
+      unsaving = true;
+      e.srcElement.innerHTML = "CANCEL";
+      loadAllSavedPosts(selection);
     }
-    articles = document.getElementsByClassName("FyNDV")[0];
-    document.getElementsByClassName("_4emnV")[0].childNodes[0].replaceWith(spinnerBefore);
-    if(articles.childNodes[0].className == ""){
-      articles.removeChild(articles.childNodes[0]);
-      document.getElementsByClassName("_4emnV")[0].style.marginTop = "0px";
-      articles.appendChild(unsavedElement);
-    }
-    statusAfter = document.getElementsByClassName("_6auzh")[0];
-    statusAfter.innerHTML = "This process can take up to 5 minutes. Please do not leave the page as the unsaving process will be canceled!";
-    statusAfter.style.textAlign = "center";
-    statusAfter.style.marginTop = "0px";
-    unsavedElement.style.display = "block";
-    unsaving = true;
-    e.srcElement.innerHTML = "CANCEL";
-    loadAllSavedPosts(selection);
   });
 }
 
