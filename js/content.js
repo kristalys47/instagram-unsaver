@@ -120,17 +120,19 @@ function addButtons(){
 
   document.getElementById("unsaveSelected").addEventListener("click", function(e){
     if(!statusBefore) return;
+
     if(e.srcElement.innerHTML == "DONE"){
       location.reload();
       return;
     }
     var selected = document.getElementsByClassName("selection");
-    document.getElementById("unsaveAll").parentNode.parentNode.parentNode.removeChild(document.getElementById("unsaveAll").parentNode.parentNode);
-    document.getElementById("select").parentNode.parentNode.parentNode.removeChild(document.getElementById("select").parentNode.parentNode);
     if(selected.length == 0){
       alert("Please make a selection first");
       return;
     }
+    document.getElementById("unsaveAll").parentNode.parentNode.parentNode.removeChild(document.getElementById("unsaveAll").parentNode.parentNode);
+    document.getElementById("select").parentNode.parentNode.parentNode.removeChild(document.getElementById("select").parentNode.parentNode);
+
     var selection = [];
     for(var i = 0; i < selected.length; i++){
       selection.push(selected[i].parentNode.parentNode.href);
