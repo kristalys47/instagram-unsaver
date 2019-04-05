@@ -76,7 +76,7 @@ function addButtons(){
       }
       return false;
     }
-    if(unsaving || document.getElementById("unsaveAll").innerHTML == "DONE" || document.getElementById("unsaveSelected").innerHTML == "DONE")) {
+    if(unsaving || document.getElementById("unsaveAll").innerHTML == "DONE" || document.getElementById("unsaveSelected").innerHTML == "DONE") {
       event.stopImmediatePropagation();
       event.preventDefault();
       return false;
