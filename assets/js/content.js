@@ -66,15 +66,15 @@ function initialize(){
   //Injecting custom style sheet, to manipulate the Instagram UI in our favor
   var sheet = document.createElement('style');
   //Basically removing the comments and likes tooltip on image hover and adding a selection class, used for our selected items
-  sheet.innerHTML = '.qn-0x {display: none;} .selection {background-color: rgba(0,0,0,0.5); background-image: url("https://i.imgur.com/40BpFf8.png"); background-repeat: no-repeat; background-position: center center; background-size: cover;}';
+  sheet.innerHTML = '.qn-0x {display: none;} .selection {background-color: rgba(0,0,0,0.5); background-image: url("chrome-extension://gfebdbpmjpihdmmiogpaechffmlplojh/assets/img/tick.png"); background-repeat: no-repeat; background-position: center center; background-size: cover;}';
   document.body.appendChild(sheet);
 
   //Creating our toolbar div
   var div = document.createElement("div");
   div.className = "fx7hk"; //Class used to apply same style as Instagrams original Tab Bar above
-  div.innerHTML = '<a onclick="unsaveAll(event)" class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="unsaveAll" style="color: #000;">' + strings.unsaveAll + '</span></span></a>';
-  div.innerHTML += '<a onclick="unsaveSelected(event)" class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="unsaveSelected" style="color: #000;">' + strings.unsaveSelected + '</span></span></a>';
-  div.innerHTML += '<a onclick="startSelection(event)" class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="select" style="color: #000;">' + strings.select + '</span></span></a>';
+  div.innerHTML = '<a onclick="unsaveAll(this)" class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="unsaveAll" style="color: #000;">' + strings.unsaveAll + '</span></span></a>';
+  div.innerHTML += '<a onclick="unsaveSelected(this)" class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="unsaveSelected" style="color: #000;">' + strings.unsaveSelected + '</span></span></a>';
+  div.innerHTML += '<a onclick="startSelection(this)" class="_9VEo1 "><span class="smsjF"><span class="PJXu4" id="select" style="color: #000;">' + strings.select + '</span></span></a>';
   div.id = "toolbar";
 
   container.parentNode.insertBefore(div, container); //Adding toolbar to DOM
@@ -82,7 +82,7 @@ function initialize(){
   //Creating our "current progress" label
   progressText = document.createElement("h1");
   progressText.className = "_7UhW9       fKFbl yUEEX   KV-D4        uL8Hv     l4b0S    "; //Using pre-existing style
-  progressText.innerHTML = strings.progress;
+  progressText.innerHTML = strings.progress.replace("/n/", unsavedCount);;
   progressText.style.marginBottom = "10px";
   progressText.style.display = "block";
 
@@ -117,13 +117,17 @@ function initialize(){
 
 //Handling clicks to start selection
 function startSelection(e){
-  e.srcElement.innerHTML = selecting ? strings.select : strings.cancel;
+  console.log(e);
+  e.childNodes[0].childNodes[0].innerHTML = selecting ? strings.select : strings.cancel;
   selecting = !selecting;
 }
 
 //Handling clicks to start unsaving
 function unsaveSelected(e){
-  if(currentState == 2){
+  if(currentState == 1) { //Canceling process
+    showSuccess();
+    return;
+  }else if(currentState == 2){ //Finishing up
     location.reload();
     return;
   }
@@ -147,10 +151,10 @@ function unsaveSelected(e){
 
 //Handling clicks to start unsaving
 function unsaveAll(e){
-  if(unsaving) {
+  if(currentState == 1) { //Canceling process
     showSuccess();
     return;
-  }else if(e.srcElement.innerHTML == "DONE"){
+  }else if(currentState == 2){ //Finishing up
     location.reload();
     return;
   }
@@ -159,7 +163,7 @@ function unsaveAll(e){
 }
 
 function setUpVisualization(e, selection){
-  removeExcept(e.srcElement);
+  removeExcept(e);
 
   articles = document.getElementsByClassName("FyNDV")[0];
   //document.getElementsByClassName("_4emnV")[0].childNodes[0].replaceWith(statusIcon);
@@ -177,7 +181,7 @@ function setUpVisualization(e, selection){
   statusText.style.textAlign = "center";
   statusText.style.marginTop = "0px";
 
-  e.srcElement.innerHTML = strings.cancel;
+  e.childNodes[0].childNodes[0].innerHTML = strings.cancel;
 
   currentState = 1;
   getIdByUsername(selection);
@@ -214,19 +218,16 @@ function unsavePosts(user_id, end_cursor, selection, sindex){
       for(var i = 0; i < data.edges.length; i++){
         var savedPost = data.edges[i].node;
         if(selection == null){ //No selection; Just unsave every post in data
-          unsaveSinglePost(savedPost.id, function(data){
-            unsavedCount++;
-          }, function(xhr){ console.error(xhr); });
+          unsaveSinglePost(savedPost.id, function(data){}, function(xhr){ showError(xhr); break; });
         }else if(sindex < selection.length){ //Existing selection => unsave if shortcode is in selection
           if(!selection[sindex].includes(savedPost.shortcode)) continue;
-          unsaveSinglePost(savedPost.id, function(data){
-            unsavedCount++;
-          }, function(xhr){ console.error(xhr); });
+          unsaveSinglePost(savedPost.id, function(data){}, function(xhr){ showError(xhr); break; });
           sindex++;
         }else{
           showSuccess();
-          return;
+          break;
         }
+        unsavedCount++;
         progressText.innerHTML = strings.progress.replace("/n/", unsavedCount);
       }
 
@@ -265,7 +266,7 @@ function showSuccess(){
   toolbar.childNodes[0].childNodes[0].childNodes[0].innerHTML = strings.done;
 
   statusIcon.innerHTML = "";
-  statusIcon.style.background = "url('https://raw.githubusercontent.com/thisismo/instagram-unsaver/master/assets/img/finished.png')";
+  statusIcon.style.background = "url('chrome-extension://gfebdbpmjpihdmmiogpaechffmlplojh/assets/img/success.png')";
 }
 
 function showError(xhr){
@@ -283,7 +284,7 @@ function showError(xhr){
   progressText.style.display = "none"; //?
 
   statusIcon.innerHTML = "";
-  statusIcon.style.background = "url('https://raw.githubusercontent.com/thisismo/instagram-unsaver/master/assets/img/error.png')";
+  statusIcon.style.background = "url('chrome-extension://gfebdbpmjpihdmmiogpaechffmlplojh/assets/img/error.png')";
 }
 
 function unsaveSinglePost(id, success, error){
