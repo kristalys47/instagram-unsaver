@@ -9,7 +9,8 @@ An open source Chrome Extension allowing you to clear all your saved Instagram p
 3. Open up **chrome://extensions/** and activate the Developer Mode in the top-right corner
 4. Click **Load unpacked** and select the previously unpacked folder
 5. Go to [Instagram](https://www.instagram.com/) and login if needed
-6. Head to **Your Profile** -> **Saved** -> Click **Unsave All**
+6. Head to **Your Profile** -> **Saved** -> Click **Unsave All**  
+   or alternatively go to `https://www.instagram.com/[your username]/saved/`
 7. Let the script finish its work and hit **Done**
 
 ## To do:
