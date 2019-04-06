@@ -66,7 +66,7 @@ function initialize(){
   //Injecting custom style sheet, to manipulate the Instagram UI in our favor
   var sheet = document.createElement('style');
   //Basically removing the comments and likes tooltip on image hover and adding a selection class, used for our selected items
-  sheet.innerHTML = '.qn-0x {display: none;} .selection {background-color: rgba(0,0,0,0.5); background-image: url("chrome-extension://gfebdbpmjpihdmmiogpaechffmlplojh/assets/img/tick.png"); background-repeat: no-repeat; background-position: center center; background-size: cover;}';
+  sheet.innerHTML = '.qn-0x {display: none;} .selection {background-color: rgba(0,0,0,0.5); background-image: url("https://raw.githubusercontent.com/thisismo/instagram-unsaver/master/assets/img/tick.png"); background-repeat: no-repeat; background-position: center center; background-size: cover;}';
   document.body.appendChild(sheet);
 
   //Creating our toolbar div
@@ -266,7 +266,7 @@ function showSuccess(){
   toolbar.childNodes[0].childNodes[0].childNodes[0].innerHTML = strings.done;
 
   statusIcon.innerHTML = "";
-  statusIcon.style.background = "url('chrome-extension://gfebdbpmjpihdmmiogpaechffmlplojh/assets/img/success.png')";
+  statusIcon.style.background = "url('https://raw.githubusercontent.com/thisismo/instagram-unsaver/master/assets/img/success.png')";
 }
 
 function showError(xhr){
@@ -284,7 +284,7 @@ function showError(xhr){
   progressText.style.display = "none"; //?
 
   statusIcon.innerHTML = "";
-  statusIcon.style.background = "url('chrome-extension://gfebdbpmjpihdmmiogpaechffmlplojh/assets/img/error.png')";
+  statusIcon.style.background = "url('https://raw.githubusercontent.com/thisismo/instagram-unsaver/master/assets/img/error.png')";
 }
 
 function unsaveSinglePost(id, success, error){
