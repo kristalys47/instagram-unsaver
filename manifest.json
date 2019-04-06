@@ -1,15 +1,15 @@
 {
    "manifest_version" : 2,
-   "version"          : "1.0.0",
-   "name"             : "Instagram Unsaver",
+   "version"          : "1.5",
    "author"           : "thisismo",
+   "name"             : "Instagram Unsaver",
    "description"      : "Unsaving all your saved Instagram Posts",
    "permissions"              : ["webRequest", "webRequestBlocking", "tabs", "*://*.instagram.com/*", "https://www.instagram.com/"],
-   "web_accessible_resources" : ["js/*"],
+   "web_accessible_resources" : ["assets/*"],
    "content_scripts" : [{
       "matches" : ["*://*.instagram.com/*"],
       "run_at"  : "document_idle",
-      "js"      : ["js/inject.js"],
+      "js"      : ["assets/js/inject.js"],
       "all_frames": true
    }]
 }
