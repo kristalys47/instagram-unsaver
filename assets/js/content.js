@@ -1,7 +1,6 @@
 //Only show buttons, if on https://www.instagram.com/*/saved/
 if(window.location.href.split('/')[window.location.href.split('/').length - 2] == "saved") {
   showButtons();
-  showingLove();
 }
 
 var statusText   = null;  //Small status text, used for giving tips
@@ -333,6 +332,8 @@ function unsaveSinglePost(id, success, error){
   xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
   xhr.send();
 }
+
+showingLove();
 
 function getCookie(name) {
   var cookies = document.cookie.replace(/\s/g, '').split(";");
