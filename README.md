@@ -16,5 +16,4 @@ An open source Chrome Extension allowing you to clear all your saved Instagram p
 5. Let the script finish its work and hit **Done**
 
 ## To do:
-- Unsave all **except** previously selected posts
 - Prevent the script from exceeding Instagrams Max Request Limit (200 Requests / 5 Minutes)
