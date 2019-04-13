@@ -5,7 +5,7 @@ An open source Chrome Extension allowing you to clear all your saved Instagram p
 ## Features
 - Mass post unsaving
 - Unsaving previously selected posts
-- Unsaving all posts except previously selected ones **(soon)**
+- Unsaving all posts except previously selected ones
 
 ## How to install
 1. Go to [our Chrome Webstore Page](https://chrome.google.com/webstore/detail/instagram-unsaver/gopbooannmimbdeicpeoimocldmeeoak)
